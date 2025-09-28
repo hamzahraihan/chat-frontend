@@ -1,32 +1,37 @@
-import { useCallback, useEffect, useState, useMemo } from 'react';
-import { useWebSocket } from '../hooks/useWebSocket';
-import type { IChatMessage } from '../types/ChatMessage';
-import { MessageList } from './MessageList';
-import { MessageInput } from './MessageInput';
+import { useCallback, useEffect, useState, useMemo } from "react";
+import { useWebSocket } from "../hooks/useWebSocket";
+import type { IChatMessage } from "../types/ChatMessage";
+import { MessageList } from "./MessageList";
+import { MessageInput } from "./MessageInput";
+import { useChatContext } from "../hooks/useChatContext";
 
-interface IChatRoom {
-  username: string;
-  roomId: string;
-}
-
-export default function ChatRoom({ username, roomId }: IChatRoom) {
+export default function ChatRoom() {
   const [messages, setMessages] = useState<IChatMessage[]>([]);
+  const { username, setUsername, roomId, setRoomId } = useChatContext();
 
   const handleMessage = useCallback(
     (topic: string, msg: IChatMessage) => {
       if (topic == `/topic/room.${roomId}`) {
         setMessages((prev) => [...prev, msg]);
-      } else if (topic == '/user/queue/messages') {
+      } else if (topic == "/user/queue/messages") {
         setMessages((prev) => [...prev, msg]);
       }
     },
-    [roomId]
+    [roomId],
   );
 
-  const topics = useMemo(() => [`/topic/room.${roomId}`, '/user/queue/messages', '/topic/presence'], [roomId]);
+  const resetSession = () => {
+    setUsername("");
+    setRoomId("");
+  };
+
+  const topics = useMemo(
+    () => [`/topic/room.${roomId}`, "/user/queue/messages", "/topic/presence"],
+    [roomId],
+  );
 
   const ws = useWebSocket({
-    url: 'http://localhost:8080/ws',
+    url: "http://localhost:8080/ws",
     topics,
     username: username,
     onMessage: handleMessage,
@@ -65,6 +70,7 @@ export default function ChatRoom({ username, roomId }: IChatRoom) {
 
   return (
     <div>
+      <button onClick={resetSession}>reset session</button>
       <h3>Room: {roomId}</h3>
       <MessageList messages={messages} />
       <MessageInput onSend={sendChat} />
