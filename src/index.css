@@ -1,3 +1,26 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap");
+
 :root {
+  box-sizing: border-box;
+  font-family: "Geist", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
   background-color: #fefae0;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0px;
+}
+
+button {
+  background-color: #dda15e;
+  border: none;
+  border-radius: 1em;
+  padding: 12px;
+  color: white;
+  transition: 0.1s;
+}
+button:hover {
+  background-color: #bc6c25;
 }
