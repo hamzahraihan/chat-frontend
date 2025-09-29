@@ -13,30 +13,32 @@ export default function Landing() {
   };
 
   return (
-    <div>
-      <div>
-        <p>username</p>
-        <input
-          type="text"
-          value={chat.username}
-          name="username"
-          onChange={(e) => {
-            setChat((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-          }}
-        />
+    <div className="container">
+      <div className="form-card">
+        <div className="form-input">
+          <p>username</p>
+          <input
+            type="text"
+            value={chat.username}
+            name="username"
+            onChange={(e) => {
+              setChat((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+            }}
+          />
+        </div>
+        <div className="form-input">
+          <p>room</p>
+          <input
+            type="text"
+            value={chat.roomId}
+            name="roomId"
+            onChange={(e) => {
+              setChat((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+            }}
+          />
+        </div>
+        <button onClick={handleUsernameAndRoom}>confirm</button>
       </div>
-      <div>
-        <p>room</p>
-        <input
-          type="text"
-          value={chat.roomId}
-          name="roomId"
-          onChange={(e) => {
-            setChat((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-          }}
-        />
-      </div>
-      <button onClick={handleUsernameAndRoom}>confirm</button>
     </div>
   );
 }
