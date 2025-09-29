@@ -1,5 +1,5 @@
-import ChatRoom from "../components/ChatRoom";
 import { useChatContext } from "../hooks/useChatContext";
+import ChatRoom from "./chat";
 import Lobby from "./landing";
 
 function App() {
