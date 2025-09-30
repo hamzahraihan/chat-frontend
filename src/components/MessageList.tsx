@@ -5,7 +5,7 @@ export const MessageList = ({ messages }: { messages: IChatMessage[] }) => {
     <ul>
       {messages.map((msg) => (
         <li key={msg.id ?? msg.timestamp}>
-          <strong>{msg.sender}</strong>: {msg.content}
+          <strong>{msg.sender}</strong>: {msg.content}{" "}
           <small>{new Date(msg.timestamp).toLocaleTimeString()}</small>
         </li>
       ))}
