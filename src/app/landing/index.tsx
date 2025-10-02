@@ -3,13 +3,14 @@ import { useChatContext } from "../../hooks/useChatContext";
 import "./landing.css";
 
 export default function Landing() {
-  const { setRoomId, setUsername } = useChatContext();
-  const [chat, setChat] = useState({ username: "", roomId: "" });
+  const { setRoomId, setUsername, setReceiver } = useChatContext();
+  const [chat, setChat] = useState({ username: "", roomId: "", receiver: "" });
 
-  const handleUsernameAndRoom = () => {
+  const handleUsernameRoomAndReceiver = () => {
     console.log(chat);
     setUsername(chat.username);
     setRoomId(chat.roomId);
+    setReceiver(chat.receiver);
   };
 
   return (
@@ -37,7 +38,18 @@ export default function Landing() {
             }}
           />
         </div>
-        <button onClick={handleUsernameAndRoom}>confirm</button>
+        <div className="form-input">
+          <p>Receiver</p>
+          <input
+            type="text"
+            value={chat.receiver}
+            name="receiver"
+            onChange={(e) => {
+              setChat((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+            }}
+          />
+        </div>
+        <button onClick={handleUsernameRoomAndReceiver}>confirm</button>
       </div>
     </div>
   );
