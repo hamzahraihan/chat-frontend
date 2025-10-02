@@ -3,10 +3,18 @@ import ChatRoom from "./chatroom";
 import Lobby from "./landing";
 
 function App() {
-  const { username, roomId } = useChatContext();
+  const { username, receiver, roomId } = useChatContext();
   console.log(username, roomId);
 
-  return <div>{username == "" && roomId == "" ? <Lobby /> : <ChatRoom />}</div>;
+  return (
+    <div>
+      {username == "" && roomId == "" && receiver == "" ? (
+        <Lobby />
+      ) : (
+        <ChatRoom />
+      )}
+    </div>
+  );
 }
 
 export default App;
