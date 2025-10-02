@@ -1,7 +1,7 @@
-import { Client, type IMessage, type StompSubscription } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
-import type { IChatMessage } from '../types/ChatMessage';
-import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
+import type { IChatMessage } from "../types/ChatMessage";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 
 interface UseWebSocketProps {
   url: string;
@@ -10,7 +10,12 @@ interface UseWebSocketProps {
   username?: string;
 }
 
-export const useWebSocket = ({ url, topics, onMessage, username }: UseWebSocketProps) => {
+export const useWebSocket = ({
+  url,
+  topics,
+  onMessage,
+  username,
+}: UseWebSocketProps) => {
   const clientRef = useRef<Client | null>(null);
   const subsRef = useRef<Record<string, StompSubscription | null>>({});
   const [connected, setConnected] = useState(false);
@@ -27,7 +32,7 @@ export const useWebSocket = ({ url, topics, onMessage, username }: UseWebSocketP
   // Memoize the connect function to prevent unnecessary recreations
   const connect = useCallback(() => {
     if (clientRef.current?.connected) {
-      console.log('Already connected, skipping...');
+      console.log("Already connected, skipping...");
       return;
     }
 
@@ -36,34 +41,53 @@ export const useWebSocket = ({ url, topics, onMessage, username }: UseWebSocketP
       clientRef.current.deactivate();
     }
 
-    const connectUrl = username ? `${url}?username=${encodeURIComponent(username)}` : url;
+    const connectUrl = username
+      ? `${url}?username=${encodeURIComponent(username)}`
+      : url;
 
-    console.log('Connecting to WebSocket...', connectUrl);
+    console.log("Connecting to WebSocket...", connectUrl);
     const client = new Client({
       webSocketFactory: () => new SockJS(connectUrl),
       reconnectDelay: 5000,
       onConnect: () => {
-        console.log('WebSocket connected!');
+        console.log("WebSocket connected!");
         setConnected(true);
         topicsRef.current.forEach((topic) => {
-          console.log('Subscribing to topic:', topic);
+          console.log("Subscribing to topic:", topic);
+
           const sub = client.subscribe(topic, (message: IMessage) => {
+            console.log("Raw STOMP message:", message);
             try {
+              console.log(`Message received on ${topic}:`, message.body);
               const payload: IChatMessage = JSON.parse(message.body);
+              console.log("Parsed message:", payload);
               onMessageRef.current(topic, payload);
             } catch (err) {
-              console.error('failed parse', err);
+              console.error("failed parse", err);
             }
           });
           subsRef.current[topic] = sub;
         });
+
+        // // Subscribe to private messages
+        // const privateSub = client.subscribe('/user/queue/private', (message: IMessage) => {
+        //   try {
+        //     const payload: IChatMessage = JSON.parse(message.body);
+        //     console.log('Private message received:', payload);
+        //     onMessageRef.current('/user/queue/private', payload);
+        //   } catch (err) {
+        //     console.error('failed parse private', err);
+        //   }
+        // });
+        // subsRef.current['/user/queue/private'] = privateSub;
       },
+
       onDisconnect: () => {
-        console.log('WebSocket disconnected');
+        console.log("WebSocket disconnected");
         setConnected(false);
       },
-      onStompError: (frame) => console.error('stomp error', frame),
-      onWebSocketError: (ev) => console.error('ws error', ev),
+      onStompError: (frame) => console.error("stomp error", frame),
+      onWebSocketError: (ev) => console.error("ws error", ev),
     });
 
     client.activate();
@@ -72,7 +96,7 @@ export const useWebSocket = ({ url, topics, onMessage, username }: UseWebSocketP
 
   const disconnect = useCallback(() => {
     if (!clientRef.current) return;
-    console.log('Disconnecting WebSocket...');
+    console.log("Disconnecting WebSocket...");
     Object.values(subsRef.current).forEach((s) => s?.unsubscribe());
     subsRef.current = {};
     clientRef.current.deactivate();
@@ -80,13 +104,24 @@ export const useWebSocket = ({ url, topics, onMessage, username }: UseWebSocketP
     setConnected(false);
   }, []);
 
-  const sendMessage = useCallback((destination: string, body: { sender: string; content: string; roomId: string }) => {
-    if (!clientRef.current || !clientRef.current.connected) {
-      console.warn('not connected');
-      return;
-    }
-    clientRef.current.publish({ destination, body: JSON.stringify(body) });
-  }, []);
+  const sendMessage = useCallback(
+    (
+      destination: string,
+      body: {
+        sender: string;
+        content: string;
+        receiver?: string;
+        roomId?: string;
+      },
+    ) => {
+      if (!clientRef.current || !clientRef.current.connected) {
+        console.warn("not connected");
+        return;
+      }
+      clientRef.current.publish({ destination, body: JSON.stringify(body) });
+    },
+    [],
+  );
 
   useEffect(() => {
     return () => disconnect();
@@ -100,6 +135,6 @@ export const useWebSocket = ({ url, topics, onMessage, username }: UseWebSocketP
       connected,
       disconnect,
     }),
-    [sendMessage, connect, connected, disconnect]
+    [sendMessage, connect, connected, disconnect],
   );
 };
