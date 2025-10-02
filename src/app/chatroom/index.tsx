@@ -1,19 +1,44 @@
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useState, useMemo, useEffect } from "react";
 import type { IChatMessage } from "../../types/ChatMessage";
 import { useChatContext } from "../../hooks/useChatContext";
 import { useWebSocket } from "../../hooks/useWebSocket";
 import PublicChat from "./PublicChat";
 import PrivateChat from "./PrivateChat";
 
+export type WebSocketType = {
+  sendMessage: (
+    destination: string,
+    body: {
+      sender: string;
+      content: string;
+      receiver?: string;
+      roomId?: string;
+    },
+  ) => void;
+  connect: () => void;
+  connected: boolean;
+  disconnect: () => void;
+};
+
 export default function ChatRoom() {
   const [messages, setMessages] = useState<IChatMessage[]>([]);
-  const { username, setUsername, roomId, setRoomId } = useChatContext();
+  // send a message to receiver
+  const { username, receiver, setUsername, roomId, setRoomId, setReceiver } =
+    useChatContext();
+
+  // clean messages after disconnect from room and private chat
+  useEffect(() => {
+    setMessages([]);
+  }, [receiver, roomId]);
 
   const handleMessage = useCallback(
     (topic: string, msg: IChatMessage) => {
-      if (topic == `/topic/room.${roomId}`) {
+      console.log("Received message on topic:", topic, "Message:", msg);
+
+      if (topic === `/topic/room.${roomId}`) {
         setMessages((prev) => [...prev, msg]);
-      } else if (topic == "/user/queue/messages") {
+      }
+      if (topic === "/user/topic/private") {
         setMessages((prev) => [...prev, msg]);
       }
     },
@@ -23,58 +48,52 @@ export default function ChatRoom() {
   const resetSession = () => {
     setUsername("");
     setRoomId("");
+    setReceiver("");
   };
 
   const topics = useMemo(
-    () => [`/topic/room.${roomId}`, "/user/queue/messages", "/topic/presence"],
+    () => [`/topic/room.${roomId}`, `/topic/presence`, `/user/topic/private`],
     [roomId],
   );
 
-  const ws = useWebSocket({
+  const ws: WebSocketType = useWebSocket({
     url: "http://localhost:8080/ws",
     topics,
     username: username,
     onMessage: handleMessage,
   });
 
-  useEffect(() => {
-    console.log(`Setting up chat room for ${roomId} with user ${username}`);
-
-    // Connect WebSocket
-    ws.connect();
-
-    // load chat history via rest
-    fetch(`http://localhost:8080/api/rooms/${roomId}/history`)
-      .then((res) => {
-        console.log(res);
-        return res.json();
-      })
-      .then((data: IChatMessage[]) => {
-        console.log(data);
-        setMessages(data);
-      })
-      .catch((err) => console.error(err));
-
-    // Cleanup function
-    return () => {
-      console.log(`Cleaning up chat room for ${roomId}`);
-      ws.disconnect();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId, username]);
-
   const sendChat = (text: string) => {
     const dto = { sender: username, content: text, roomId };
     ws.sendMessage(`/app/chat.send.${roomId}`, dto);
+  };
+
+  const sendPrivateChat = (text: string) => {
+    const dto = { sender: username, receiver: receiver, content: text };
+    ws.sendMessage("/app/chat.private", dto);
   };
 
   return (
     <div>
       <button onClick={resetSession}>reset session</button>
       {roomId ? (
-        <PublicChat messages={messages} roomId={roomId} sendChat={sendChat} />
+        <PublicChat
+          messages={messages}
+          username={username}
+          roomId={roomId}
+          sendChat={sendChat}
+          setMessages={setMessages}
+          ws={ws}
+        />
       ) : (
-        <PrivateChat />
+        <PrivateChat
+          username={username}
+          messages={messages}
+          setMessages={setMessages}
+          sendPrivateChat={sendPrivateChat}
+          receiver={receiver}
+          ws={ws}
+        />
       )}
     </div>
   );
