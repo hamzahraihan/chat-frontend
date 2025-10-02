@@ -3,6 +3,8 @@ import { createContext, useContext } from "react";
 type ChatProviderProps = {
   username: string;
   setUsername: (username: string) => void;
+  receiver: string;
+  setReceiver: (receiver: string) => void;
   roomId: string;
   setRoomId: (roomId: string) => void;
 };
@@ -10,6 +12,8 @@ type ChatProviderProps = {
 const initialState: ChatProviderProps = {
   username: "",
   setUsername: () => null,
+  receiver: "",
+  setReceiver: () => null,
   roomId: "",
   setRoomId: () => null,
 };
