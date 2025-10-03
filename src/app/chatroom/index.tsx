@@ -38,7 +38,7 @@ export default function ChatRoom() {
       if (topic === `/topic/room.${roomId}`) {
         setMessages((prev) => [...prev, msg]);
       }
-      if (topic === "/user/topic/private") {
+      if (topic === "/user/queue/private") {
         setMessages((prev) => [...prev, msg]);
       }
     },
@@ -52,7 +52,7 @@ export default function ChatRoom() {
   };
 
   const topics = useMemo(
-    () => [`/topic/room.${roomId}`, `/topic/presence`, `/user/topic/private`],
+    () => [`/topic/room.${roomId}`, `/topic/presence`, "/user/queue/private"],
     [roomId],
   );
 
