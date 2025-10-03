@@ -70,16 +70,19 @@ export const useWebSocket = ({
         });
 
         // // Subscribe to private messages
-        // const privateSub = client.subscribe('/user/queue/private', (message: IMessage) => {
-        //   try {
-        //     const payload: IChatMessage = JSON.parse(message.body);
-        //     console.log('Private message received:', payload);
-        //     onMessageRef.current('/user/queue/private', payload);
-        //   } catch (err) {
-        //     console.error('failed parse private', err);
-        //   }
-        // });
-        // subsRef.current['/user/queue/private'] = privateSub;
+        // const privateSub = client.subscribe(
+        //   "/user/queue/private",
+        //   (message: IMessage) => {
+        //     try {
+        //       const payload: IChatMessage = JSON.parse(message.body);
+        //       console.log("Private message received:", payload);
+        //       onMessageRef.current("/user/queue/private", payload);
+        //     } catch (err) {
+        //       console.error("failed parse private", err);
+        //     }
+        //   },
+        // );
+        // subsRef.current["/user/queue/private"] = privateSub;
       },
 
       onDisconnect: () => {
