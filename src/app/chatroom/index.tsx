@@ -4,6 +4,7 @@ import { useChatContext } from "../../hooks/useChatContext";
 import { useWebSocket } from "../../hooks/useWebSocket";
 import PublicChat from "./PublicChat";
 import PrivateChat from "./PrivateChat";
+import "./chat.css";
 
 export type WebSocketType = {
   sendMessage: (
@@ -74,9 +75,31 @@ export default function ChatRoom() {
   };
 
   return (
-    <div>
+    <div className="room-container">
       <button onClick={resetSession}>reset session</button>
-      {roomId ? (
+      {roomId && receiver && (
+        <div className="chat-container">
+          <PublicChat
+            messages={messages}
+            username={username}
+            roomId={roomId}
+            sendChat={sendChat}
+            setMessages={setMessages}
+            ws={ws}
+          />
+
+          <PrivateChat
+            username={username}
+            messages={messages}
+            setMessages={setMessages}
+            sendPrivateChat={sendPrivateChat}
+            receiver={receiver}
+            ws={ws}
+          />
+        </div>
+      )}
+
+      {roomId && !receiver && (
         <PublicChat
           messages={messages}
           username={username}
@@ -85,7 +108,9 @@ export default function ChatRoom() {
           setMessages={setMessages}
           ws={ws}
         />
-      ) : (
+      )}
+
+      {receiver && !roomId && (
         <PrivateChat
           username={username}
           messages={messages}
