@@ -1,0 +1,9 @@
+.room-container {
+  margin: 10px;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
