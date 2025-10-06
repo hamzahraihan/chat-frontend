@@ -2,19 +2,19 @@ import { createContext, useContext } from "react";
 
 type ChatProviderProps = {
   username: string;
-  setUsername: (username: string) => void;
   receiver: string;
-  setReceiver: (receiver: string) => void;
   roomId: string;
+  setUsername: (username: string) => void;
+  setReceiver: (receiver: string) => void;
   setRoomId: (roomId: string) => void;
 };
 
 const initialState: ChatProviderProps = {
   username: "",
-  setUsername: () => null,
   receiver: "",
-  setReceiver: () => null,
   roomId: "",
+  setUsername: () => null,
+  setReceiver: () => null,
   setRoomId: () => null,
 };
 
