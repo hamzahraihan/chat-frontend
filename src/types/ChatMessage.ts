@@ -1,4 +1,4 @@
-export type MessageType = 'CHAT' | 'JOIN' | 'LEAVE' | 'PRIVATE';
+export type MessageType = "CHAT" | "JOIN" | "LEAVE" | "PRIVATE";
 
 export interface IChatMessage {
   id?: number;
