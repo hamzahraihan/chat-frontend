@@ -1,10 +1,12 @@
-import { useCallback, useState, useMemo, useEffect } from "react";
-import type { IChatMessage } from "../../types/ChatMessage";
-import { useChatContext } from "../../hooks/useChatContext";
-import { useWebSocket } from "../../hooks/useWebSocket";
-import PublicChat from "./PublicChat";
-import PrivateChat from "./PrivateChat";
-import "./chat.css";
+import { useCallback, useState, useMemo, useEffect } from 'react';
+import type { IChatMessage } from '../../types/ChatMessage';
+import type { PresenceMessage } from '../../types/PresenceMessage';
+import { useChatContext } from '../../hooks/useChatContext';
+import { useWebSocket } from '../../hooks/useWebSocket';
+import { usePresence } from '../../hooks/usePresence';
+import PublicChat from './PublicChat';
+import PrivateChat from './PrivateChat';
+import './chat.css';
 
 export type WebSocketType = {
   sendMessage: (
@@ -14,7 +16,8 @@ export type WebSocketType = {
       content: string;
       receiver?: string;
       roomId?: string;
-    },
+      timestamp?: string;
+    }
   ) => void;
   connect: () => void;
   connected: boolean;
@@ -23,9 +26,10 @@ export type WebSocketType = {
 
 export default function ChatRoom() {
   const [messages, setMessages] = useState<IChatMessage[]>([]);
-  // send a message to receiver
-  const { username, receiver, setUsername, roomId, setRoomId, setReceiver } =
-    useChatContext();
+  const { username, receiver, setUsername, roomId, setRoomId, setReceiver } = useChatContext();
+
+  // Initialize presence tracking
+  const presence = usePresence();
 
   // clean messages after disconnect from room and private chat
   useEffect(() => {
@@ -33,45 +37,63 @@ export default function ChatRoom() {
   }, [receiver, roomId]);
 
   const handleMessage = useCallback(
-    (topic: string, msg: IChatMessage) => {
-      console.log("Received message on topic:", topic, "Message:", msg);
+    (topic: string, msg: IChatMessage | string) => {
+      console.log('Received message on topic:', topic, 'Message:', msg);
 
       if (topic === `/topic/room.${roomId}`) {
-        setMessages((prev) => [...prev, msg]);
+        setMessages((prev) => [...prev, msg as IChatMessage]);
       }
-      if (topic === "/user/queue/private") {
-        setMessages((prev) => [...prev, msg]);
+      if (topic === '/user/queue/private') {
+        setMessages((prev) => [...prev, msg as IChatMessage]);
+      }
+      // Handle presence updates
+      if (topic === '/topic/presence') {
+        try {
+          const presenceMsg = typeof msg === 'string' ? JSON.parse(msg) : msg;
+          presence.handlePresenceUpdate(presenceMsg as PresenceMessage);
+        } catch (error) {
+          console.error('Failed to parse presence message:', error);
+        }
       }
     },
-    [roomId],
+    [roomId, presence]
   );
 
   const resetSession = () => {
-    setUsername("");
-    setRoomId("");
-    setReceiver("");
+    setUsername('');
+    setRoomId('');
+    setReceiver('');
   };
 
-  const topics = useMemo(
-    () => [`/topic/room.${roomId}`, `/topic/presence`, "/user/queue/private"],
-    [roomId],
-  );
+  const topics = useMemo(() => [`/topic/room.${roomId}`, `/topic/presence`, '/user/queue/private'], [roomId]);
 
   const ws: WebSocketType = useWebSocket({
-    url: "http://localhost:8080/ws",
+    url: 'http://localhost:8080/ws',
     topics,
     username: username,
     onMessage: handleMessage,
   });
 
   const sendChat = (text: string) => {
-    const dto = { sender: username, content: text, roomId };
+    const dto: IChatMessage = {
+      sender: username,
+      content: text,
+      roomId,
+      type: 'CHAT',
+      timestamp: new Date().toISOString(),
+    };
     ws.sendMessage(`/app/chat.send.${roomId}`, dto);
   };
 
   const sendPrivateChat = (text: string) => {
-    const dto = { sender: username, receiver: receiver, content: text };
-    ws.sendMessage("/app/chat.private", dto);
+    const dto: IChatMessage = {
+      sender: username,
+      receiver: receiver,
+      type: 'PRIVATE',
+      content: text,
+      timestamp: new Date().toISOString(),
+    };
+    ws.sendMessage('/app/chat.private', dto);
   };
 
   return (
@@ -79,47 +101,15 @@ export default function ChatRoom() {
       <button onClick={resetSession}>reset session</button>
       {roomId && receiver && (
         <div className="chat-container">
-          <PublicChat
-            messages={messages}
-            username={username}
-            roomId={roomId}
-            sendChat={sendChat}
-            setMessages={setMessages}
-            ws={ws}
-          />
+          <PublicChat messages={messages} username={username} roomId={roomId} sendChat={sendChat} setMessages={setMessages} ws={ws} />
 
-          <PrivateChat
-            username={username}
-            messages={messages}
-            setMessages={setMessages}
-            sendPrivateChat={sendPrivateChat}
-            receiver={receiver}
-            ws={ws}
-          />
+          <PrivateChat username={username} messages={messages} setMessages={setMessages} sendPrivateChat={sendPrivateChat} receiver={receiver} ws={ws} isReceiverOnline={presence.isUserOnline(receiver)} />
         </div>
       )}
 
-      {roomId && !receiver && (
-        <PublicChat
-          messages={messages}
-          username={username}
-          roomId={roomId}
-          sendChat={sendChat}
-          setMessages={setMessages}
-          ws={ws}
-        />
-      )}
+      {roomId && !receiver && <PublicChat messages={messages} username={username} roomId={roomId} sendChat={sendChat} setMessages={setMessages} ws={ws} />}
 
-      {receiver && !roomId && (
-        <PrivateChat
-          username={username}
-          messages={messages}
-          setMessages={setMessages}
-          sendPrivateChat={sendPrivateChat}
-          receiver={receiver}
-          ws={ws}
-        />
-      )}
+      {receiver && !roomId && <PrivateChat username={username} messages={messages} setMessages={setMessages} sendPrivateChat={sendPrivateChat} receiver={receiver} ws={ws} isReceiverOnline={presence.isUserOnline(receiver)} />}
     </div>
   );
 }
