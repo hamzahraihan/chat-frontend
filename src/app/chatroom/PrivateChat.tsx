@@ -11,6 +11,7 @@ export default function PrivateChat({
   ws,
   sendPrivateChat,
   setMessages,
+  isReceiverOnline,
 }: {
   messages: IChatMessage[];
   username: string;
@@ -18,6 +19,7 @@ export default function PrivateChat({
   sendPrivateChat: (text: string) => void;
   ws: WebSocketType;
   setMessages: Dispatch<SetStateAction<IChatMessage[]>>;
+  isReceiverOnline: boolean;
 }) {
   useEffect(() => {
     console.log(`Setting up private chat room for ${username} with user ${receiver}`);
@@ -49,7 +51,20 @@ export default function PrivateChat({
 
   return (
     <div>
-      <p>Receiver: {receiver}</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <p>Receiver: {receiver}</p>
+        <div
+          style={{
+            width: '12px',
+            height: '12px',
+            borderRadius: '50%',
+            backgroundColor: isReceiverOnline ? '#22c55e' : '#ef4444',
+            display: 'inline-block',
+          }}
+          title={isReceiverOnline ? 'Online' : 'Offline'}
+        />
+        <span style={{ fontSize: '14px', color: '#666' }}>{isReceiverOnline ? 'Online' : 'Offline'}</span>
+      </div>
       <MessageList messages={messages} />
       <MessageInput onSend={sendPrivateChat} />
     </div>
