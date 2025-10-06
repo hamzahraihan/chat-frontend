@@ -8,8 +8,8 @@ export default function PublicChat({
   messages,
   roomId,
   sendChat,
-  ws,
   username,
+  ws,
   setMessages,
 }: {
   messages: IChatMessage[];
