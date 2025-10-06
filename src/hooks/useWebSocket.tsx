@@ -60,6 +60,7 @@ export const useWebSocket = ({
             try {
               console.log(`Message received on ${topic}:`, message.body);
               const payload: IChatMessage = JSON.parse(message.body);
+
               console.log("Parsed message:", payload);
               onMessageRef.current(topic, payload);
             } catch (err) {
@@ -68,21 +69,6 @@ export const useWebSocket = ({
           });
           subsRef.current[topic] = sub;
         });
-
-        // // Subscribe to private messages
-        // const privateSub = client.subscribe(
-        //   "/user/queue/private",
-        //   (message: IMessage) => {
-        //     try {
-        //       const payload: IChatMessage = JSON.parse(message.body);
-        //       console.log("Private message received:", payload);
-        //       onMessageRef.current("/user/queue/private", payload);
-        //     } catch (err) {
-        //       console.error("failed parse private", err);
-        //     }
-        //   },
-        // );
-        // subsRef.current["/user/queue/private"] = privateSub;
       },
 
       onDisconnect: () => {
