@@ -37,7 +37,7 @@ export default function ChatRoom() {
   }, [receiver, roomId]);
 
   const handleMessage = useCallback(
-    (topic: string, msg: IChatMessage | string) => {
+    (topic: string, msg: IChatMessage | PresenceMessage) => {
       console.log('Received message on topic:', topic, 'Message:', msg);
 
       if (topic === `/topic/room.${roomId}`) {
@@ -49,8 +49,7 @@ export default function ChatRoom() {
       // Handle presence updates
       if (topic === '/topic/presence') {
         try {
-          const presenceMsg = typeof msg === 'string' ? JSON.parse(msg) : msg;
-          presence.handlePresenceUpdate(presenceMsg as PresenceMessage);
+          presence.handlePresenceUpdate(msg as PresenceMessage);
         } catch (error) {
           console.error('Failed to parse presence message:', error);
         }
