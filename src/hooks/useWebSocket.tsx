@@ -41,16 +41,25 @@ export const useWebSocket = ({
       clientRef.current.deactivate();
     }
 
-    const connectUrl = username
-      ? `${url}?username=${encodeURIComponent(username)}`
+    // const token = localStorage.getItem("TOKEN_KEY");
+    const token =
+      "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJqYWNram9obiIsImlhdCI6MTc2MDM1OTYyNiwiZXhwIjoxNzYwNDQ2MDI2fQ.Q7DnrK6bXXMEHIFG4up6tQ5gxaZPGgbZg71gp589q-SFcooEtzLGcg1UhxOIlUpLyfk_ORNQwlLkpsa2PtEjXfTWWSi6RWVm1P8Mu-vMBWPD8oP7nLDi737p3ISHBoyMNsgbo2dszPAepLgHhzkf11R7M1j_oRIAmBrJimo27vFf7qgjwfNHihXjEvix-FnqbsW9pUjfwVq9p_NVNcg__IhqIJPQnfX2YA2LP57ZqnQu2Ar54loUJGBUlppCzdWMrkZtOSAbQ8bMO9dbMgKlriYEf5LG4LEUXczeUg0z0XyQqfLLWjAYgpaD-eq0oe_ljRNOQUljazOrHrSvZtgF9g";
+
+    const connectUrl = token
+      ? `${url}?token=${encodeURIComponent(token)}`
       : url;
 
     console.log("Connecting to WebSocket...", connectUrl);
     const client = new Client({
-      webSocketFactory: () => new SockJS(connectUrl),
+      brokerURL: connectUrl,
+      // webSocketFactory: () => new SockJS(connectUrl),
+      connectHeaders: {
+        Authorization: `Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJqYWNram9obiIsImlhdCI6MTc2MDM1OTYyNiwiZXhwIjoxNzYwNDQ2MDI2fQ.Q7DnrK6bXXMEHIFG4up6tQ5gxaZPGgbZg71gp589q-SFcooEtzLGcg1UhxOIlUpLyfk_ORNQwlLkpsa2PtEjXfTWWSi6RWVm1P8Mu-vMBWPD8oP7nLDi737p3ISHBoyMNsgbo2dszPAepLgHhzkf11R7M1j_oRIAmBrJimo27vFf7qgjwfNHihXjEvix-FnqbsW9pUjfwVq9p_NVNcg__IhqIJPQnfX2YA2LP57ZqnQu2Ar54loUJGBUlppCzdWMrkZtOSAbQ8bMO9dbMgKlriYEf5LG4LEUXczeUg0z0XyQqfLLWjAYgpaD-eq0oe_ljRNOQUljazOrHrSvZtgF9g`,
+      },
       reconnectDelay: 5000,
       onConnect: () => {
         console.log("WebSocket connected!");
+
         setConnected(true);
         topicsRef.current.forEach((topic) => {
           console.log("Subscribing to topic:", topic);
