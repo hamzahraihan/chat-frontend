@@ -7,6 +7,7 @@ import { usePresence } from "../../hooks/usePresence";
 import PublicChat from "./PublicChat";
 import PrivateChat from "./PrivateChat";
 import "./chat.css";
+import { useAuthContext } from "../../hooks/useAuthContext";
 
 export type WebSocketType = {
   sendMessage: (
@@ -26,7 +27,8 @@ export type WebSocketType = {
 
 export default function ChatRoom() {
   const [messages, setMessages] = useState<IChatMessage[]>([]);
-  const { username, receiver, setUsername, roomId, setRoomId, setReceiver } =
+  const { username, token } = useAuthContext();
+  const { receiver, setUsername, roomId, setRoomId, setReceiver } =
     useChatContext();
 
   // Initialize presence tracking
@@ -73,8 +75,8 @@ export default function ChatRoom() {
   const ws: WebSocketType = useWebSocket({
     url: "ws://localhost:8080/ws",
     topics,
-    username: username,
     onMessage: handleMessage,
+    token: token || "",
   });
 
   const sendChat = (text: string) => {
