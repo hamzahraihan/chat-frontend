@@ -1,5 +1,4 @@
 import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
 import type { IChatMessage } from "../types/ChatMessage";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 
@@ -7,14 +6,14 @@ interface UseWebSocketProps {
   url: string;
   topics: string[];
   onMessage: (topic: string, msg: IChatMessage) => void;
-  username?: string;
+  token?: string;
 }
 
 export const useWebSocket = ({
   url,
   topics,
   onMessage,
-  username,
+  token,
 }: UseWebSocketProps) => {
   const clientRef = useRef<Client | null>(null);
   const subsRef = useRef<Record<string, StompSubscription | null>>({});
@@ -41,10 +40,6 @@ export const useWebSocket = ({
       clientRef.current.deactivate();
     }
 
-    // const token = localStorage.getItem("TOKEN_KEY");
-    const token =
-      "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJqYWNram9obiIsImlhdCI6MTc2MDM1OTYyNiwiZXhwIjoxNzYwNDQ2MDI2fQ.Q7DnrK6bXXMEHIFG4up6tQ5gxaZPGgbZg71gp589q-SFcooEtzLGcg1UhxOIlUpLyfk_ORNQwlLkpsa2PtEjXfTWWSi6RWVm1P8Mu-vMBWPD8oP7nLDi737p3ISHBoyMNsgbo2dszPAepLgHhzkf11R7M1j_oRIAmBrJimo27vFf7qgjwfNHihXjEvix-FnqbsW9pUjfwVq9p_NVNcg__IhqIJPQnfX2YA2LP57ZqnQu2Ar54loUJGBUlppCzdWMrkZtOSAbQ8bMO9dbMgKlriYEf5LG4LEUXczeUg0z0XyQqfLLWjAYgpaD-eq0oe_ljRNOQUljazOrHrSvZtgF9g";
-
     const connectUrl = token
       ? `${url}?token=${encodeURIComponent(token)}`
       : url;
@@ -54,7 +49,7 @@ export const useWebSocket = ({
       brokerURL: connectUrl,
       // webSocketFactory: () => new SockJS(connectUrl),
       connectHeaders: {
-        Authorization: `Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJqYWNram9obiIsImlhdCI6MTc2MDM1OTYyNiwiZXhwIjoxNzYwNDQ2MDI2fQ.Q7DnrK6bXXMEHIFG4up6tQ5gxaZPGgbZg71gp589q-SFcooEtzLGcg1UhxOIlUpLyfk_ORNQwlLkpsa2PtEjXfTWWSi6RWVm1P8Mu-vMBWPD8oP7nLDi737p3ISHBoyMNsgbo2dszPAepLgHhzkf11R7M1j_oRIAmBrJimo27vFf7qgjwfNHihXjEvix-FnqbsW9pUjfwVq9p_NVNcg__IhqIJPQnfX2YA2LP57ZqnQu2Ar54loUJGBUlppCzdWMrkZtOSAbQ8bMO9dbMgKlriYEf5LG4LEUXczeUg0z0XyQqfLLWjAYgpaD-eq0oe_ljRNOQUljazOrHrSvZtgF9g`,
+        Authorization: `Bearer ${token}`,
       },
       reconnectDelay: 5000,
       onConnect: () => {
@@ -90,7 +85,7 @@ export const useWebSocket = ({
 
     client.activate();
     clientRef.current = client;
-  }, [url, username]);
+  }, [url, token]);
 
   const disconnect = useCallback(() => {
     if (!clientRef.current) return;
