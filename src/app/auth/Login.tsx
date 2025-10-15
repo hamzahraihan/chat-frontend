@@ -1,3 +1,23 @@
+import { useAuthContext } from "../../hooks/useAuthContext";
+
 export default function LoginPage() {
-  return <div>login page</div>;
+  const { handleLogin, setPassword, setUsername, password, username } =
+    useAuthContext();
+  return (
+    <div>
+      <input
+        type="text"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder="username.."
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="password.."
+      />
+      <button onClick={handleLogin}>Login</button>
+    </div>
+  );
 }
