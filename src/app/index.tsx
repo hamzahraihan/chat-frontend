@@ -1,6 +1,6 @@
 import { useAuthContext } from "../hooks/useAuthContext";
 import { useChatContext } from "../hooks/useChatContext";
-import LoginPage from "./auth/Login";
+import AuthPage from "./auth";
 import ChatRoom from "./chatroom";
 import Lobby from "./landing";
 import RootLayout from "./layout";
@@ -13,7 +13,7 @@ function App() {
   if (!token) {
     return (
       <RootLayout>
-        <LoginPage />
+        <AuthPage />
       </RootLayout>
     );
   } else if (token && username == "" && roomId == "" && receiver == "") {
