@@ -37,6 +37,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const handleRegister = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+      const result = await response.json();
+
+      localStorage.setItem(TOKEN_KEY, result.token);
+    } catch (err: unknown) {
+      console.error(err);
+    }
+  };
+
   const value = {
     username,
     setUsername: (username: string) => setUsername(username),
@@ -44,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setPassword: (password: string) => setPassword(password),
     token,
     handleLogin,
+    handleRegister,
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
