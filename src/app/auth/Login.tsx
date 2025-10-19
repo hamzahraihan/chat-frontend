@@ -5,8 +5,8 @@ export default function LoginPage() {
   const { handleLogin, setPassword, setUsername, password, username } =
     useAuthContext();
   return (
-    <div className="login-container">
-      <div className="login-card">
+    <div className="auth-container">
+      <div className="auth-card">
         <input
           type="text"
           value={username}
