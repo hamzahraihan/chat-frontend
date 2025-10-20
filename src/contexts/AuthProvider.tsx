@@ -21,17 +21,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ username, password }),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
+        alert(result.message);
+        throw new Error(`Response message: ${result.message}`);
       }
 
       // set username to localstorage
       localStorage.setItem(USERNAME_KEY, username);
 
       // set token to localstorage
-      const result = await response.json();
       localStorage.setItem(TOKEN_KEY, result.token);
       setToken(result.token);
+      setPassword("");
     } catch (error: unknown) {
       console.error(error);
     }
@@ -47,12 +50,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ username, password }),
       });
 
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
       const result = await response.json();
 
+      if (!response.ok) {
+        alert(result.message);
+        throw new Error(`Response message: ${result.message}`);
+      }
+
+      // set username to localstorage
+      localStorage.setItem(USERNAME_KEY, username);
+
       localStorage.setItem(TOKEN_KEY, result.token);
+      setToken(result.token);
+      setPassword("");
     } catch (err: unknown) {
       console.error(err);
     }
@@ -60,10 +70,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = {
     username,
-    setUsername: (username: string) => setUsername(username),
+    setUsername: (username: string) => {
+      localStorage.setItem(USERNAME_KEY, username);
+      setUsername(username);
+    },
     password,
     setPassword: (password: string) => setPassword(password),
     token,
+    setToken: (token: string) => {
+      localStorage.setItem(TOKEN_KEY, token);
+      setToken(token);
+    },
     handleLogin,
     handleRegister,
   };
