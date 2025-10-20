@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useChatContext } from "../../hooks/useChatContext";
 import "./landing.css";
+import { useAuthContext } from "../../hooks/useAuthContext";
 
-export default function Landing() {
+export default function Lobby() {
+  const { setUsername, setToken } = useAuthContext();
   const { setRoomId, setReceiver } = useChatContext();
   const [chat, setChat] = useState({ roomId: "", receiver: "" });
 
@@ -10,6 +12,11 @@ export default function Landing() {
     console.log(chat);
     setRoomId(chat.roomId);
     setReceiver(chat.receiver);
+  };
+
+  const handleLogout = () => {
+    setToken("");
+    setUsername("");
   };
 
   return (
@@ -38,6 +45,7 @@ export default function Landing() {
           />
         </div>
         <button onClick={handleUsernameRoomAndReceiver}>confirm</button>
+        <button onClick={handleLogout}>Logout</button>
       </div>
     </div>
   );
