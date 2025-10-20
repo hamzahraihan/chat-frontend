@@ -103,7 +103,7 @@ export default function ChatRoom() {
 
   return (
     <div className="room-container">
-      <button onClick={resetSession}>reset session</button>
+      <button onClick={resetSession}>logout</button>
       {roomId && receiver && (
         <div className="chat-container">
           <PublicChat
