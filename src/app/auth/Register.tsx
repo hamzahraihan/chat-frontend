@@ -1,10 +1,12 @@
 import { useAuthContext } from "../../hooks/useAuthContext";
 
 export default function RegisterPage() {
-  const { setUsername, setPassword, username, password } = useAuthContext();
+  const { setUsername, setPassword, username, password, handleRegister } =
+    useAuthContext();
 
   return (
-    <div className="auth-container">
+    <div className="">
+      <h1>Register</h1>
       <div className="auth-card">
         <input
           type="text"
@@ -18,7 +20,7 @@ export default function RegisterPage() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="password.."
         />
-        <button>Register</button>
+        <button onClick={handleRegister}>Submit</button>
       </div>
     </div>
   );
