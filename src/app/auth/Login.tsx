@@ -5,7 +5,8 @@ export default function LoginPage() {
   const { handleLogin, setPassword, setUsername, password, username } =
     useAuthContext();
   return (
-    <div className="auth-container">
+    <div className="">
+      <h1>Login</h1>
       <div className="auth-card">
         <input
           type="text"
@@ -19,7 +20,7 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="password.."
         />
-        <button onClick={handleLogin}>Login</button>
+        <button onClick={handleLogin}>Submit</button>
       </div>
     </div>
   );
