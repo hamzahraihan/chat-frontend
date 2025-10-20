@@ -3,19 +3,23 @@ import { createContext, useContext } from "react";
 type AuthProviderProps = {
   username: string;
   password: string;
+  token: string | null;
   setUsername: (username: string) => void;
   setPassword: (password: string) => void;
-  token: string | null;
+  setToken: (token: string) => void;
   handleLogin: () => void;
+  handleRegister: () => void;
 };
 
 const initialState: AuthProviderProps = {
   username: "",
   password: "",
+  token: "",
   setUsername: () => null,
   setPassword: () => null,
-  token: "",
+  setToken: () => null,
   handleLogin: () => null,
+  handleRegister: () => null,
 };
 
 export const AuthContext = createContext<AuthProviderProps>(initialState);
